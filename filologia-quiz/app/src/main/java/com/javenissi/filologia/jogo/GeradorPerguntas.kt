@@ -3,9 +3,13 @@ package com.javenissi.filologia.jogo
 import kotlin.random.Random
 
 /**
- * Gera rodadas de perguntas a partir do dataset. Os distratores vêm sempre de
- * palavras do mesmo nível, para que as alternativas tenham dificuldade parecida.
- * Perguntas de etimologia só aparecem no modo MISTO, nos níveis 2 e 3.
+ * Gera rodadas de perguntas a partir do dataset. O foco do jogo é semântica:
+ * significado nas duas direções, sinônimos e sentido em contexto (completar a
+ * frase). Etimologia só aparece no modo dedicado ModoJogo.ETIMOLOGIA.
+ *
+ * Os distratores vêm sempre de palavras do mesmo nível e passam por um filtro
+ * que descarta palavras semanticamente próximas do alvo (sinônimos cruzados),
+ * para que só exista uma resposta correta.
  */
 class GeradorPerguntas(
     dataset: List<Palavra>,
@@ -27,20 +31,31 @@ class GeradorPerguntas(
         val tipo = when (modo) {
             ModoJogo.PALAVRA_PARA_SIGNIFICADO -> TipoPergunta.PALAVRA_PARA_SIGNIFICADO
             ModoJogo.SIGNIFICADO_PARA_PALAVRA -> TipoPergunta.SIGNIFICADO_PARA_PALAVRA
-            ModoJogo.MISTO -> sortearTipo(alvo.nivel)
+            ModoJogo.ETIMOLOGIA -> TipoPergunta.ETIMOLOGIA
+            ModoJogo.MISTO -> sortearTipo(alvo, pool)
         }
-        val distratores = pool.filter { it.palavra != alvo.palavra }
+        val distratores = pool.filter { semanticamenteDistinta(alvo, it) }
             .shuffled(random)
             .take(OPCOES_POR_PERGUNTA - 1)
 
         val (enunciado, textoCorreto, textosDistratores) = when (tipo) {
             TipoPergunta.PALAVRA_PARA_SIGNIFICADO -> Triple(
-                "O que significa \"${alvo.palavra}\"?",
+                "Qual é o sentido de \"${alvo.palavra}\"?",
                 alvo.significado,
                 distratores.map { it.significado }
             )
             TipoPergunta.SIGNIFICADO_PARA_PALAVRA -> Triple(
-                "Qual palavra significa: \"${alvo.significado}\"?",
+                "Qual palavra tem o sentido de: \"${alvo.significado}\"?",
+                alvo.palavra,
+                distratores.map { it.palavra }
+            )
+            TipoPergunta.SINONIMO -> Triple(
+                "Qual palavra é sinônimo de \"${alvo.palavra}\"?",
+                alvo.sinonimos.random(random),
+                distratores.map { it.palavra }
+            )
+            TipoPergunta.COMPLETAR_FRASE -> Triple(
+                "Qual palavra completa a frase?\n\n${alvo.frase}",
                 alvo.palavra,
                 distratores.map { it.palavra }
             )
@@ -61,21 +76,30 @@ class GeradorPerguntas(
         )
     }
 
-    private fun sortearTipo(nivel: Int): TipoPergunta {
-        val tipos = if (nivel >= 2) {
-            listOf(
-                TipoPergunta.PALAVRA_PARA_SIGNIFICADO,
-                TipoPergunta.SIGNIFICADO_PARA_PALAVRA,
-                TipoPergunta.ETIMOLOGIA
-            )
-        } else {
-            listOf(
-                TipoPergunta.PALAVRA_PARA_SIGNIFICADO,
-                TipoPergunta.SIGNIFICADO_PARA_PALAVRA
-            )
+    private fun sortearTipo(alvo: Palavra, pool: List<Palavra>): TipoPergunta {
+        val tipos = buildList {
+            add(TipoPergunta.PALAVRA_PARA_SIGNIFICADO)
+            add(TipoPergunta.SIGNIFICADO_PARA_PALAVRA)
+            if (alvo.frase.isNotBlank()) add(TipoPergunta.COMPLETAR_FRASE)
+            if (alvo.sinonimos.isNotEmpty() &&
+                pool.count { semanticamenteDistinta(alvo, it) } >= OPCOES_POR_PERGUNTA - 1
+            ) {
+                add(TipoPergunta.SINONIMO)
+            }
         }
         return tipos.random(random)
     }
+
+    /**
+     * Descarta como distrator qualquer palavra próxima demais do alvo: a
+     * própria, uma que seja sinônimo dela (em qualquer direção) ou que
+     * compartilhe sinônimos com ela.
+     */
+    private fun semanticamenteDistinta(alvo: Palavra, outra: Palavra): Boolean =
+        !outra.palavra.equals(alvo.palavra, ignoreCase = true) &&
+            alvo.sinonimos.none { it.equals(outra.palavra, ignoreCase = true) } &&
+            outra.sinonimos.none { it.equals(alvo.palavra, ignoreCase = true) } &&
+            outra.sinonimos.none { s -> alvo.sinonimos.any { it.equals(s, ignoreCase = true) } }
 
     companion object {
         const val OPCOES_POR_PERGUNTA = 4

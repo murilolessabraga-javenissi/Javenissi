@@ -4,12 +4,18 @@ Jogo de perguntas sobre a língua portuguesa: palavras, significados e etimologi
 
 ## Como funciona o jogo
 
+O foco do jogo é **semântica**: o sentido das palavras.
+
 - **Palavra → Significado**: aparece uma palavra e 4 significados como opções.
 - **Significado → Palavra**: aparece um significado e 4 palavras como opções.
-- **Misto**: mistura os dois modos e, nos níveis médio e difícil, acrescenta
-  perguntas de **etimologia** (a origem da palavra) — o toque filológico do jogo.
+- **Misto**: além dos dois modos acima, acrescenta perguntas de **sinônimo**
+  ("Qual palavra é sinônimo de...?") e de **sentido em contexto**
+  ("Qual palavra completa a frase?").
+- **Etimologia**: modo opcional dedicado à origem das palavras, para quem
+  quiser o lado filológico.
 - **3 níveis de dificuldade**: fácil (35 palavras comuns), médio (35 palavras
-  cultas) e difícil (35 palavras eruditas).
+  cultas) e difícil (35 palavras eruditas). Um filtro semântico garante que as
+  alternativas erradas nunca sejam sinônimos da resposta certa.
 - Cada rodada tem 10 perguntas. Após cada resposta, o app mostra a origem da
   palavra como curiosidade. O recorde por nível/modo fica salvo no aparelho.
 - **Monetização**: um anúncio intersticial (vídeo/tela cheia do AdMob) a cada
@@ -102,9 +108,12 @@ app/src/main/
 Edite `app/src/main/assets/palavras.json`. Cada entrada tem:
 
 ```json
-{"palavra": "...", "significado": "...", "etimologia": "...", "nivel": 1}
+{"palavra": "...", "significado": "...", "etimologia": "...", "nivel": 1,
+ "sinonimos": ["...", "..."], "frase": "Frase de exemplo com ____ no lugar da palavra."}
 ```
 
 Regras (verificadas automaticamente pelos testes): sem palavras duplicadas,
-nível de 1 a 3, e cada nível precisa de pelo menos 4 palavras. Rode
-`./gradlew test` após editar.
+nível de 1 a 3, cada nível com pelo menos 4 palavras, e toda frase deve conter
+a lacuna `____`. `sinonimos` pode ficar vazio (`[]`) quando a palavra não tiver
+sinônimo natural — ela simplesmente não aparecerá em perguntas de sinônimo.
+Rode `./gradlew test` após editar.

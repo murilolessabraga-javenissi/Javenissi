@@ -86,8 +86,11 @@ fun TelaInicio(
             OpcaoModo("Significado → Palavra", estado.modo == ModoJogo.SIGNIFICADO_PARA_PALAVRA) {
                 aoSelecionarModo(ModoJogo.SIGNIFICADO_PARA_PALAVRA)
             }
-            OpcaoModo("Misto (com etimologia nos níveis médio e difícil)", estado.modo == ModoJogo.MISTO) {
+            OpcaoModo("Misto (significado, sinônimo e contexto)", estado.modo == ModoJogo.MISTO) {
                 aoSelecionarModo(ModoJogo.MISTO)
+            }
+            OpcaoModo("Etimologia (origem das palavras)", estado.modo == ModoJogo.ETIMOLOGIA) {
+                aoSelecionarModo(ModoJogo.ETIMOLOGIA)
             }
         }
         Spacer(Modifier.height(32.dp))
@@ -210,6 +213,9 @@ fun TelaQuiz(
             val curiosidade = when (pergunta.tipo) {
                 TipoPergunta.ETIMOLOGIA ->
                     "\"${pergunta.palavra.palavra}\": ${pergunta.palavra.significado}"
+                TipoPergunta.SINONIMO, TipoPergunta.COMPLETAR_FRASE ->
+                    "\"${pergunta.palavra.palavra}\": ${pergunta.palavra.significado}. " +
+                        "Origem: ${pergunta.palavra.etimologia}"
                 else ->
                     "Origem de \"${pergunta.palavra.palavra}\": ${pergunta.palavra.etimologia}"
             }
