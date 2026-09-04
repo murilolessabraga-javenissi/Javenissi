@@ -5,7 +5,8 @@ import kotlin.random.Random
 /**
  * Gera rodadas de perguntas a partir do dataset. O foco do jogo é semântica:
  * significado nas duas direções, sinônimos e sentido em contexto (completar a
- * frase). Etimologia só aparece no modo dedicado ModoJogo.ETIMOLOGIA.
+ * frase). Etimologia entra apenas no modo COMPLETO (junto com os tipos
+ * semânticos) e no modo dedicado ETIMOLOGIA.
  *
  * Os distratores vêm sempre de palavras do mesmo nível e passam por um filtro
  * que descarta palavras semanticamente próximas do alvo (sinônimos cruzados),
@@ -32,7 +33,8 @@ class GeradorPerguntas(
             ModoJogo.PALAVRA_PARA_SIGNIFICADO -> TipoPergunta.PALAVRA_PARA_SIGNIFICADO
             ModoJogo.SIGNIFICADO_PARA_PALAVRA -> TipoPergunta.SIGNIFICADO_PARA_PALAVRA
             ModoJogo.ETIMOLOGIA -> TipoPergunta.ETIMOLOGIA
-            ModoJogo.MISTO -> sortearTipo(alvo, pool)
+            ModoJogo.MISTO -> sortearTipo(alvo, pool, comEtimologia = false)
+            ModoJogo.COMPLETO -> sortearTipo(alvo, pool, comEtimologia = true)
         }
         val distratores = pool.filter { semanticamenteDistinta(alvo, it) }
             .shuffled(random)
@@ -76,7 +78,7 @@ class GeradorPerguntas(
         )
     }
 
-    private fun sortearTipo(alvo: Palavra, pool: List<Palavra>): TipoPergunta {
+    private fun sortearTipo(alvo: Palavra, pool: List<Palavra>, comEtimologia: Boolean): TipoPergunta {
         val tipos = buildList {
             add(TipoPergunta.PALAVRA_PARA_SIGNIFICADO)
             add(TipoPergunta.SIGNIFICADO_PARA_PALAVRA)
@@ -86,6 +88,7 @@ class GeradorPerguntas(
             ) {
                 add(TipoPergunta.SINONIMO)
             }
+            if (comEtimologia) add(TipoPergunta.ETIMOLOGIA)
         }
         return tipos.random(random)
     }

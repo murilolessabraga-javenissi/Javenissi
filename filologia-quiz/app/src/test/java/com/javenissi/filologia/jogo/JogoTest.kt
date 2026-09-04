@@ -95,6 +95,18 @@ class JogoTest {
     }
 
     @Test
+    fun `modo completo inclui etimologia junto com os tipos semanticos`() {
+        val gerador = GeradorPerguntas(dataset, Random(5))
+        for (nivel in 1..3) {
+            val tipos = (1..30).flatMap {
+                gerador.gerarRodada(nivel, ModoJogo.COMPLETO, 10).map { it.tipo }
+            }.toSet()
+            assertEquals(TipoPergunta.entries.toSet(), tipos,
+                "Modo completo deveria sortear todos os tipos no nível $nivel, veio $tipos")
+        }
+    }
+
+    @Test
     fun `distratores nunca sao semanticamente proximos do alvo`() {
         val gerador = GeradorPerguntas(dataset, Random(3))
         val porPalavra = dataset.associateBy { it.palavra }

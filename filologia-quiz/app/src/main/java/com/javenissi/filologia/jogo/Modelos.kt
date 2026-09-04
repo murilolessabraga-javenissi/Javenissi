@@ -21,6 +21,7 @@ enum class ModoJogo {
     PALAVRA_PARA_SIGNIFICADO,
     SIGNIFICADO_PARA_PALAVRA,
     MISTO,
+    COMPLETO,
     ETIMOLOGIA
 }
 

@@ -11,8 +11,10 @@ O foco do jogo é **semântica**: o sentido das palavras.
 - **Misto**: além dos dois modos acima, acrescenta perguntas de **sinônimo**
   ("Qual palavra é sinônimo de...?") e de **sentido em contexto**
   ("Qual palavra completa a frase?").
-- **Etimologia**: modo opcional dedicado à origem das palavras, para quem
-  quiser o lado filológico.
+- **Completo**: tudo do modo misto **mais** perguntas de etimologia na
+  rotação.
+- **Etimologia**: modo dedicado só à origem das palavras, para quem
+  quiser o lado filológico puro.
 - **3 níveis de dificuldade**: fácil (35 palavras comuns), médio (35 palavras
   cultas) e difícil (35 palavras eruditas). Um filtro semântico garante que as
   alternativas erradas nunca sejam sinônimos da resposta certa.

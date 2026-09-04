@@ -89,6 +89,9 @@ fun TelaInicio(
             OpcaoModo("Misto (significado, sinônimo e contexto)", estado.modo == ModoJogo.MISTO) {
                 aoSelecionarModo(ModoJogo.MISTO)
             }
+            OpcaoModo("Completo (misto + etimologia)", estado.modo == ModoJogo.COMPLETO) {
+                aoSelecionarModo(ModoJogo.COMPLETO)
+            }
             OpcaoModo("Etimologia (origem das palavras)", estado.modo == ModoJogo.ETIMOLOGIA) {
                 aoSelecionarModo(ModoJogo.ETIMOLOGIA)
             }
