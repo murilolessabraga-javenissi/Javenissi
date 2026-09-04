@@ -8,7 +8,7 @@ import kotlin.random.Random
  * frase). Etimologia entra apenas no modo COMPLETO (junto com os tipos
  * semânticos) e no modo dedicado ETIMOLOGIA.
  *
- * Os distratores vêm sempre de palavras do mesmo nível e passam por um filtro
+ * Os distratores vêm sempre da mesma área e do mesmo nível e passam por um filtro
  * que descarta palavras semanticamente próximas do alvo (sinônimos cruzados),
  * para que só exista uma resposta correta.
  */
@@ -16,12 +16,14 @@ class GeradorPerguntas(
     dataset: List<Palavra>,
     private val random: Random = Random.Default
 ) {
-    private val porNivel: Map<Int, List<Palavra>> = dataset.groupBy { it.nivel }
+    private val porAreaENivel: Map<Pair<Area, Int>, List<Palavra>> =
+        dataset.groupBy { it.area to it.nivel }
 
-    fun gerarRodada(nivel: Int, modo: ModoJogo, quantidade: Int): List<Pergunta> {
-        val pool = porNivel[nivel].orEmpty()
+    fun gerarRodada(area: Area, nivel: Int, modo: ModoJogo, quantidade: Int): List<Pergunta> {
+        val pool = porAreaENivel[area to nivel].orEmpty()
         require(pool.size >= OPCOES_POR_PERGUNTA) {
-            "Nível $nivel tem só ${pool.size} palavras; mínimo é $OPCOES_POR_PERGUNTA"
+            "Área ${area.rotulo}, nível $nivel tem só ${pool.size} palavras; " +
+                "mínimo é $OPCOES_POR_PERGUNTA"
         }
         return pool.shuffled(random)
             .take(quantidade.coerceAtMost(pool.size))

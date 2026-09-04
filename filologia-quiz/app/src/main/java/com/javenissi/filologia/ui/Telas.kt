@@ -1,5 +1,6 @@
 package com.javenissi.filologia.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,18 +32,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.javenissi.filologia.EstadoUi
 import com.javenissi.filologia.QuizViewModel
+import com.javenissi.filologia.jogo.Area
 import com.javenissi.filologia.jogo.ModoJogo
 import com.javenissi.filologia.jogo.TipoPergunta
 
 private val nomesNiveis = mapOf(1 to "Fácil", 2 to "Médio", 3 to "Difícil")
 
 @Composable
-fun TelaInicio(
-    estado: EstadoUi,
-    aoSelecionarNivel: (Int) -> Unit,
-    aoSelecionarModo: (ModoJogo) -> Unit,
-    aoJogar: () -> Unit
-) {
+fun TelaArea(aoSelecionarArea: (Area) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,13 +54,82 @@ fun TelaInicio(
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold
         )
+        Spacer(Modifier.height(4.dp))
         Text(
-            "Palavras, significados e origens da língua portuguesa",
+            "Escolha o campo de vocabulário",
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(28.dp))
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Area.entries.forEach { area ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { aoSelecionarArea(area) },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(Modifier.padding(18.dp)) {
+                        Text(
+                            area.rotulo,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            area.descricao,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TelaInicio(
+    estado: EstadoUi,
+    aoSelecionarNivel: (Int) -> Unit,
+    aoSelecionarModo: (ModoJogo) -> Unit,
+    aoJogar: () -> Unit,
+    aoTrocarArea: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("φ", style = MaterialTheme.typography.displayLarge, color = MaterialTheme.colorScheme.primary)
+        Text(
+            estado.area.rotulo,
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            estado.area.descricao,
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(8.dp))
+        TextButton(onClick = aoTrocarArea) {
+            Text("Trocar de área")
+        }
+        Spacer(Modifier.height(16.dp))
 
         Text("Nível", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))

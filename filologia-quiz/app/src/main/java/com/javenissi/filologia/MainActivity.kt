@@ -13,6 +13,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.javenissi.filologia.ads.GerenciadorAnuncios
 import com.javenissi.filologia.ui.FilologiaTheme
+import com.javenissi.filologia.ui.TelaArea
 import com.javenissi.filologia.ui.TelaInicio
 import com.javenissi.filologia.ui.TelaQuiz
 import com.javenissi.filologia.ui.TelaResultado
@@ -46,11 +47,15 @@ fun AppFilologia(
             .background(MaterialTheme.colorScheme.background)
     ) {
         when (estado.fase) {
+            Fase.AREA -> TelaArea(
+                aoSelecionarArea = viewModel::selecionarArea
+            )
             Fase.INICIO -> TelaInicio(
                 estado = estado,
                 aoSelecionarNivel = viewModel::selecionarNivel,
                 aoSelecionarModo = viewModel::selecionarModo,
-                aoJogar = viewModel::iniciarRodada
+                aoJogar = viewModel::iniciarRodada,
+                aoTrocarArea = viewModel::voltarParaAreas
             )
             Fase.JOGANDO -> TelaQuiz(
                 estado = estado,

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import com.javenissi.filologia.ads.GerenciadorAnuncios
+import com.javenissi.filologia.jogo.Area
 import com.javenissi.filologia.jogo.ContadorAnuncios
 import com.javenissi.filologia.jogo.DatasetLoader
 import com.javenissi.filologia.jogo.GeradorPerguntas
@@ -14,10 +15,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-enum class Fase { INICIO, JOGANDO, RESULTADO }
+enum class Fase { AREA, INICIO, JOGANDO, RESULTADO }
 
 data class EstadoUi(
-    val fase: Fase = Fase.INICIO,
+    val fase: Fase = Fase.AREA,
+    val area: Area = Area.GERAL,
     val nivel: Int = 1,
     val modo: ModoJogo = ModoJogo.MISTO,
     val perguntas: List<Pergunta> = emptyList(),
@@ -46,13 +48,18 @@ class QuizViewModel(app: Application) : AndroidViewModel(app) {
     private val _estado = MutableStateFlow(EstadoUi())
     val estado: StateFlow<EstadoUi> = _estado.asStateFlow()
 
+    fun selecionarArea(area: Area) = _estado.update { it.copy(area = area, fase = Fase.INICIO) }
+
+    fun voltarParaAreas() = _estado.update { it.copy(fase = Fase.AREA) }
+
     fun selecionarNivel(nivel: Int) = _estado.update { it.copy(nivel = nivel) }
 
     fun selecionarModo(modo: ModoJogo) = _estado.update { it.copy(modo = modo) }
 
     fun iniciarRodada() {
         val atual = _estado.value
-        val perguntas = gerador.gerarRodada(atual.nivel, atual.modo, PERGUNTAS_POR_RODADA)
+        val perguntas =
+            gerador.gerarRodada(atual.area, atual.nivel, atual.modo, PERGUNTAS_POR_RODADA)
         _estado.update {
             it.copy(
                 fase = Fase.JOGANDO,
@@ -96,7 +103,7 @@ class QuizViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun finalizarRodada() {
         val atual = _estado.value
-        val chave = "recorde_${atual.nivel}_${atual.modo.name}"
+        val chave = "recorde_${atual.area.id}_${atual.nivel}_${atual.modo.name}"
         val recordeAnterior = prefs.getInt(chave, 0)
         val bateuRecorde = atual.acertos > recordeAnterior
         if (bateuRecorde) prefs.edit().putInt(chave, atual.acertos).apply()
